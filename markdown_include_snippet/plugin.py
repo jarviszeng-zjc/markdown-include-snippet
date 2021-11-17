@@ -52,10 +52,8 @@ class MarkdownIncludeSnippetPlugin(BasePlugin):
         ref: str = GithubObject.NotSet,
     ) -> str:
         if repository:
-            print("use git")
             return self._markdown_snippet(file, repository, ref, section)
         else:
-            print("use local")
             return self._resource_from_local(file, section)
 
     def snippet_old(
