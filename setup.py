@@ -1,0 +1,40 @@
+#!/usr/bin/env python
+
+import os
+from distutils.command.upload import upload as upload_orig
+from setuptools import find_packages, setup
+from typing import List
+
+VERSION = "0.1.0"
+
+
+def generate_install_requires() -> List[str]:
+    # Path agnostic way to open requirements
+    abspath = os.path.abspath(__file__)
+    project_root = os.path.dirname(abspath)
+    req_path = os.path.join(project_root, "requirements.txt")
+
+    with open(req_path) as f:
+        required = f.read().splitlines()
+
+    # Remove comments
+    return list(filter(lambda x: not x.startswith("#"), required))
+
+
+setup(
+    name="markdown-include-snippet",
+    version=VERSION,
+    description="An plugin that reads snippets from anthor markdown file.",
+    long_description=open("README.md").read(),
+    long_description_content_type="text/markdown",
+    author="Jarviszeng",
+    url="https://github.com/jarviszeng-zjc/markdown-include-snippet",
+    python_requires=">=3.5",
+    install_requires=generate_install_requires(),
+    packages=find_packages(),
+    zip_safe=False,
+    include_package_data=True,
+    entry_points={
+        "mkdocs.plugins": ["markdown-include-snippet = markdown_include_snippet.plugin:MarkdownIncludeSnippetPlugin"]
+    },
+)
