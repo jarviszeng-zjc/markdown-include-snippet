@@ -1,4 +1,5 @@
 import os
+import re
 
 import mkdocs
 from mkdocs.plugins import BasePlugin
@@ -32,7 +33,7 @@ class MarkdownIncludeSnippetPlugin(BasePlugin):
         except Exception as e:
             raise Exception(f"No such file: {file}")
 
-    def _markdown_snippet(self, file: str, repository: str, ref: str, section: str) -> str:
+    def _markdown_snippet(self, file: str, section: str, repository: str, ref: str) -> str:
         g = Github(os.getenv("GITHUB_TOKEN"))
         repo = g.get_repo(repository)
         f = repo.get_contents(file, ref=ref)
@@ -48,13 +49,17 @@ class MarkdownIncludeSnippetPlugin(BasePlugin):
         self,
         file: str,
         section: str = None,
+        header: bool = True,
         repository: str = None,
         ref: str = GithubObject.NotSet,
     ) -> str:
         if repository:
-            return self._markdown_snippet(file, repository, ref, section)
+            content = self._markdown_snippet(file=file, section=section, repository=repository, ref=ref)
         else:
-            return self._resource_from_local(file, section)
+            content = self._resource_from_local(file=file, section=section)
+        if not header:
+            return re.sub(r"^.*\n", "", content)
+        return content
 
     def snippet_old(
         self,
